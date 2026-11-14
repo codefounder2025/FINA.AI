@@ -66,13 +66,6 @@ export default function ConnectionsPage() {
     <div className="space-y-6">
       <header>
         <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">Connections</h1>
-        <p className="mt-1 max-w-3xl text-sm leading-relaxed text-slate-500 dark:text-slate-400">
-          Every source below is backed by a bundled sample adapter returning realistic JSON — there
-          are no live bank, Octopus or brokerage credentials in this demo. Any source can be
-          replaced at runtime with data you supply: a PDF statement for the bank or Octopus card, a
-          broker CSV for the portfolio, or a sandbox app connection. Each card lists the status, the
-          last sync time, and the real-world integration path this connector is designed for.
-        </p>
       </header>
 
       <section className="grid gap-4 lg:grid-cols-3">
@@ -147,19 +140,6 @@ export default function ConnectionsPage() {
             </article>
           );
         })}
-      </section>
-
-      <section className="rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-900">
-        <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Why the data is bundled</h2>
-        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-          Production access to bank account data requires an AISP licence and customer consent;
-          Octopus publishes no public transaction API; and HK brokerages have no standard consented
-          API. For a 48-hour hackathon none of these are reachable, so FINA.AI ships a connector
-          architecture where each source is a drop-in adapter. Swapping a sample adapter for a real
-          one is a single-file change — the aggregator, insights and UI never need to know. The PDF
-          statement import and the broker CSV import are real today; the app connections are
-          sandbox simulations and labelled as such.
-        </p>
       </section>
     </div>
   );
