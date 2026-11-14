@@ -8,9 +8,9 @@ then uses AI to turn the numbers into plain-language insights.
 
 Built for **BUHack 2.0 — FinTech track**.
 
-> **Everything runs on mock data.** There are no live bank, Octopus or brokerage credentials in
-> this project. Every source is backed by a connector adapter that returns realistic JSON, and the
-> UI labels the data as mock everywhere it appears. See
+> **Everything runs on a bundled sample dataset.** There are no live bank, Octopus or brokerage
+> credentials in this project. Every source is backed by a connector adapter that returns realistic
+> JSON, and the UI labels the data as sample everywhere it appears. See
 > [INTEGRATION_ROADMAP.md](./INTEGRATION_ROADMAP.md) for each source's real production path.
 
 ---
@@ -39,7 +39,7 @@ npm run typecheck
 | # | Route | What it proves |
 |---|-------|----------------|
 | 1 | `/` | Landing page — value prop and entry point. |
-| 2 | `/connections` | Three connector cards, each showing `Connected (Mock)`, last sync, and its real integration path. |
+| 2 | `/connections` | Three connector cards, each showing `Sample`, last sync, and its real integration path. |
 | 3 | `/dashboard` | Unified dashboard: 3 summary cards, AI Insight Panel, spending bar chart, investment donut, upcoming bills. |
 | 4 | `/dashboard` (toggle) | Source toggle for Bank / Octopus / Investments — **every number, both charts and the insight text recompute instantly.** |
 | 5 | `/transactions` | Unified feed with source, category and date filters and colour-coded source badges. |
@@ -80,9 +80,9 @@ lib/
   insights.ts                   # getRuleBasedInsights() — the guaranteed fallback
   format.ts                     # Currency / percent / date formatters + colour maps
 data/
-  mockBank.ts                   # 30 bank rows, 2 months (Sep + Oct 2026)
-  mockOctopus.ts                # 15 Octopus rows
-  mockInvestments.ts            # 8 holdings (2 HK stocks, 2 ETFs, 2 crypto, 2 cash)
+  sampleBank.ts                 # 30 bank rows, 2 months (Sep + Oct 2026)
+  sampleOctopus.ts              # 15 Octopus rows
+  sampleInvestments.ts          # 8 holdings (2 HK stocks, 2 ETFs, 2 crypto, 2 cash)
 ```
 
 ---
@@ -119,7 +119,7 @@ the panel is never empty and the demo can never break.
 
 ## Hand-verified totals
 
-Mock data covers two complete calendar months: **September 2026** and **October 2026**.
+Sample data covers two complete calendar months: **September 2026** and **October 2026**.
 Every figure below was verified against the rendered dashboard.
 
 ### Inputs
@@ -169,7 +169,7 @@ The insight text changes with the toggle, because it is regenerated from the sam
 ## Design notes
 
 - **Connector architecture.** `lib/connectors/*` are the only files that know a data source exists.
-  Each is a drop-in adapter over mock JSON today; replacing one with a real API client is a
+  Each is a drop-in adapter over bundled sample JSON; replacing one with a real API client is a
   single-file change and nothing downstream needs to move.
 - **Pure aggregation.** `lib/aggregator.ts` is pure and side-effect free. `buildSnapshot(toggle)`
   is the single entry point used by both the dashboard and the insight API.

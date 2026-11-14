@@ -7,7 +7,7 @@ import type { AssetClass, Holding } from './types';
  * A brokerage has no standard consented API in Hong Kong, so the realistic
  * import path is a CSV export. This module is the *only* place that understands
  * CSV: it parses untrusted user input into normalised `Holding[]`, which is the
- * same shape the mock adapter returns. Everything downstream — the aggregator,
+ * same shape the bundled adapter returns. Everything downstream — the aggregator,
  * the insights, the UI — is unchanged.
  *
  * Expected header (case-insensitive, order-independent):
@@ -235,7 +235,7 @@ export function toHoldings(rows: BrokerCsvRow[]): Holding[] {
 
 /**
  * The adapter itself. Implements the same `getHoldings(): Holding[]` contract
- * as the mock investment connector, so `buildSnapshot` accepts it unchanged.
+ * as the bundled investment connector, so `buildSnapshot` accepts it unchanged.
  */
 export function createCsvBrokerAdapter(rows: BrokerCsvRow[]) {
   const holdings = toHoldings(rows);

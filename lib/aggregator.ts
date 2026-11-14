@@ -24,15 +24,15 @@ export interface SourceToggle {
 
 /**
  * Optional per-source data overrides. Used by the import / sandbox / manual
- * flows to swap a mock source for real user data without introducing any
- * hidden state: omitting a key leaves the mock adapter in charge, so every
- * previously verified figure is unchanged.
+ * flows to swap a bundled sample source for real user data without introducing
+ * any hidden state: omitting a key leaves the bundled adapter in charge, so
+ * every previously verified figure is unchanged.
  */
 export interface SnapshotOverrides {
   holdings?: Holding[];
-  /** Replacement bank transactions; omitted = the mock bank adapter. */
+  /** Replacement bank transactions; omitted = the bundled bank adapter. */
   bank?: Transaction[];
-  /** Replacement Octopus transactions; omitted = the mock Octopus adapter. */
+  /** Replacement Octopus transactions; omitted = the bundled Octopus adapter. */
   octopus?: Transaction[];
 }
 

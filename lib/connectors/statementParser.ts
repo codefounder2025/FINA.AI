@@ -6,7 +6,7 @@ import type { LedgerSourceId } from './sandboxLedgerAdapter';
  *
  * A PDF statement is the only realistic export a Hong Kong bank or Octopus
  * offers, so this module turns the *text lines* of such a statement into
- * normalised `Transaction[]` — the same shape the mock adapters return.
+ * normalised `Transaction[]` — the same shape the bundled adapters return.
  *
  * Layouts differ between banks, so this is deliberately a tolerant line
  * parser rather than a format-specific one. It never invents data: a line it
@@ -247,7 +247,7 @@ export function parseStatementLine(line: string): StatementRow | null {
 
 /**
  * Parses every line of an extracted statement. Rows are returned sorted oldest
- * first, matching how the mock ledgers are written.
+ * first, matching how the bundled ledgers are written.
  */
 export function parseStatementLines(
   lines: string[],
@@ -283,7 +283,7 @@ export function parseStatementLines(
 
 /**
  * The adapter. Implements the same `getTransactions(): Transaction[]` contract
- * as the mock bank / Octopus connectors, so `buildSnapshot` accepts it
+ * as the bundled bank / Octopus connectors, so `buildSnapshot` accepts it
  * unchanged.
  */
 export function createStatementAdapter(source: LedgerSourceId, rows: StatementRow[]) {

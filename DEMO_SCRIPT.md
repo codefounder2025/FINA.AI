@@ -22,10 +22,10 @@ and a small investment portfolio. Nobody has one view. So we built one."
 
 ## 0:12 – 0:25 · Connections (`/connections`) — *the honesty beat*
 
-**Say:** "Before the numbers, the plumbing. Three sources, and all three are mocked — we did not
-pretend to have bank credentials in 48 hours."
+**Say:** "Before the numbers, the plumbing. Three sources, and all three run on a bundled sample
+dataset — we did not pretend to have bank credentials in 48 hours."
 
-**Do:** Sweep across the three cards. Each shows **Connected (Mock)**, the last sync time, and one
+**Do:** Sweep across the three cards. Each shows **Sample**, the last sync time, and one
 line of the real integration path — HKMA IADS for the bank, manual import for Octopus, CSV for
 brokerages.
 
@@ -72,7 +72,7 @@ cannot break either way."
 
 **Say:** "And with investments gone, net position drops to cash only — HK$36,807 — the donut goes
 empty, and the third insight swaps to the Octopus line. Nothing here is hardcoded; it's all
-recomputed from the aggregated mock data."
+recomputed from the aggregated dataset."
 
 ---
 

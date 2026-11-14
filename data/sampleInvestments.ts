@@ -1,14 +1,14 @@
 import type { Holding } from '@/lib/connectors/types';
 
 /**
- * Mock brokerage + wallet holdings for a Hong Kong student: two HK-listed
+ * Sample brokerage + wallet holdings for a Hong Kong student: two HK-listed
  * stocks, a local tracker ETF, an S&P 500 ETF, two crypto positions and two
  * cash balances. Prices are realistic HKD levels.
  *
  * marketValue = quantity * currentPrice
  * costValue   = quantity * costBasis
  */
-export const mockHoldings: Holding[] = [
+export const sampleHoldings: Holding[] = [
   {
     id: 'hold-0700',
     symbol: '0700.HK',

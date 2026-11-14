@@ -1,16 +1,16 @@
 import type { Transaction } from './types';
-import { mockOctopusTransactions } from '@/data/mockOctopus';
+import { sampleOctopusTransactions } from '@/data/sampleOctopus';
 
 /**
  * Octopus connector.
  *
  * Octopus publishes no public transaction API, so in production this data can
  * only come from a manual export (Octopus app / website statement) or, in the
- * future, the OR3.0 open API. This mock adapter stands in for that manual
+ * future, the OR3.0 open API. This sample adapter stands in for that manual
  * import.
  */
 export function getOctopusTransactions(): Transaction[] {
-  return mockOctopusTransactions;
+  return sampleOctopusTransactions;
 }
 
 export const octopusConnectorMeta = {

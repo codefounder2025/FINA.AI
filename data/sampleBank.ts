@@ -1,13 +1,13 @@
 import type { Transaction } from '@/lib/connectors/types';
 
 /**
- * Mock HSBC / BOCHK-style current-account activity for a Hong Kong university
+ * Sample HSBC / BOCHK-style current-account activity for a Hong Kong university
  * student. Two complete calendar months (September + October 2026) so that
  * month-over-month insights have something real to compare.
  *
  * Amount convention: negative = money out, positive = money in.
  */
-export const mockBankTransactions: Transaction[] = [
+export const sampleBankTransactions: Transaction[] = [
   // ---------------------------------------------------------------- September 2026
   {
     id: 'bank-2026-09-salary',

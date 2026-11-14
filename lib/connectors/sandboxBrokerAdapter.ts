@@ -63,7 +63,7 @@ export function getSandboxBroker(broker: SandboxBroker): SandboxBrokerOption | u
 
 /**
  * The adapter. Implements the same `getHoldings(): Holding[]` contract as the
- * mock and CSV connectors, so `buildSnapshot` accepts it unchanged.
+ * bundled and CSV connectors, so `buildSnapshot` accepts it unchanged.
  */
 export function createSandboxBrokerAdapter(broker: SandboxBroker) {
   const holdings = SANDBOX_PORTFOLIOS[broker];

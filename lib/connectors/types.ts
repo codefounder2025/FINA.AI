@@ -3,9 +3,9 @@
  *
  * Every connector (bank, Octopus, investment) normalises its output into these
  * shapes so the aggregator and insight layers never need to know where the
- * data came from. Today every connector is backed by a mock adapter; the types
- * are written so a real adapter can be dropped in without touching the rest of
- * the app.
+ * data came from. Today every connector is backed by a bundled sample adapter;
+ * the types are written so a real adapter can be dropped in without touching
+ * the rest of the app.
  */
 
 export type Source = 'bank' | 'octopus' | 'investment';

@@ -22,14 +22,15 @@ import type { Provenance } from '@/components/ProvenanceBadge';
 /**
  * Session-scoped portfolio state.
  *
- * Three things can replace a mock source: a CSV import or sandbox connection
- * for the investment portfolio, and a PDF statement import or sandbox
- * connection for each spending source. On top of that the user can add
+ * Three things can replace a bundled sample source: a CSV import or sandbox
+ * connection for the investment portfolio, and a PDF statement import or
+ * sandbox connection for each spending source. On top of that the user can add
  * individual transactions by hand.
  *
  * Everything is in-memory: there is no database and no localStorage, so a
- * reload always returns to the mock figures. Nothing here mutates the mock
- * adapters; alternative data is passed to `buildSnapshot` as an override.
+ * reload always returns to the bundled figures. Nothing here mutates the
+ * bundled adapters; alternative data is passed to `buildSnapshot` as an
+ * override.
  */
 
 export interface ImportedPortfolio {
@@ -74,7 +75,7 @@ interface PortfolioContextValue {
   // ---- investment portfolio
   imported: ImportedPortfolio | null;
   sandbox: SandboxConnection | null;
-  /** Holdings the dashboard should use; undefined means the mock adapter. */
+  /** Holdings the dashboard should use; undefined means the bundled adapter. */
   activeHoldings: Holding[] | undefined;
   importRows: (rows: BrokerCsvRow[], fileName: string) => void;
   clearImport: () => void;
@@ -116,7 +117,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
 
   const importRows = useCallback((rows: BrokerCsvRow[], fileName: string) => {
     // Go through the adapter so imported data arrives in exactly the same shape
-    // the mock connector returns.
+    // the bundled connector returns.
     const adapter = createCsvBrokerAdapter(rows);
 
     setImported({
@@ -129,7 +130,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // Clearing an import hands the portfolio back to the sandbox connection if one
-  // is still open, otherwise to the mock adapter.
+  // is still open, otherwise to the bundled adapter.
   const clearImport = useCallback(() => {
     setImported(null);
     setActive((current) => (current === 'csv' ? (sandbox ? 'sandbox' : null) : current));
@@ -146,7 +147,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
     setActive('sandbox');
   }, []);
 
-  // Disconnecting returns to the mock state, unless a CSV import is still
+  // Disconnecting returns to the bundled state, unless a CSV import is still
   // loaded, in which case that becomes the most recent remaining source.
   const disconnectSandbox = useCallback(() => {
     setSandbox(null);
@@ -215,7 +216,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
   }, [active, imported, sandbox]);
 
   /**
-   * Untouched sources stay `undefined` so the mock adapter keeps owning them —
+   * Untouched sources stay `undefined` so the bundled adapter keeps owning them —
    * that is what keeps every previously verified figure identical.
    */
   const overrides = useMemo<SnapshotOverrides>(() => {
@@ -246,12 +247,12 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
         ? 'csv'
         : active === 'sandbox' && sandbox
           ? 'sandbox'
-          : 'mock';
+          : 'sample';
 
     const forLedger = (id: LedgerSourceId): Provenance => {
       const ledger = ledgers[id];
       if (ledger) return ledger.kind === 'statement' ? 'statement' : 'sandbox';
-      return manualTransactions.some((t) => t.source === id) ? 'manual' : 'mock';
+      return manualTransactions.some((t) => t.source === id) ? 'manual' : 'sample';
     };
 
     return { bank: forLedger('bank'), octopus: forLedger('octopus'), investment };

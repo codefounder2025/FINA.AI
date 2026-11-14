@@ -5,7 +5,7 @@ import { formatDate } from '@/lib/format';
  *
  * Every figure in the app is traceable to a named source of data. This badge
  * states which, and never claims a live connection:
- *   mock      — the bundled sample dataset
+ *   sample    — the bundled sample dataset
  *   csv       — a portfolio the user imported from a broker CSV
  *   sandbox   — a sandbox connection flow
  *   statement — a PDF statement the user imported
@@ -13,10 +13,10 @@ import { formatDate } from '@/lib/format';
  *   mixed     — a figure derived from more than one of the above
  */
 
-export type Provenance = 'mock' | 'csv' | 'sandbox' | 'statement' | 'manual' | 'mixed';
+export type Provenance = 'sample' | 'csv' | 'sandbox' | 'statement' | 'manual' | 'mixed';
 
 const STYLES: Record<Provenance, string> = {
-  mock: 'bg-slate-100 text-slate-700 ring-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700',
+  sample: 'bg-slate-100 text-slate-700 ring-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700',
   csv: 'bg-violet-50 text-violet-800 ring-violet-200 dark:bg-violet-950 dark:text-violet-300 dark:ring-violet-800',
   sandbox:
     'bg-amber-50 text-amber-800 ring-amber-200 dark:bg-amber-950 dark:text-amber-300 dark:ring-amber-800',
@@ -28,7 +28,7 @@ const STYLES: Record<Provenance, string> = {
 };
 
 const LABELS: Record<Provenance, string> = {
-  mock: 'Sample',
+  sample: 'Sample',
   csv: 'CSV',
   sandbox: 'Sandbox',
   statement: 'Statement',
@@ -37,7 +37,7 @@ const LABELS: Record<Provenance, string> = {
 };
 
 const TITLES: Record<Provenance, string> = {
-  mock: 'Sourced from the bundled sample dataset',
+  sample: 'Sourced from the bundled sample dataset',
   csv: 'Sourced from a broker CSV you imported in this session',
   sandbox: 'Sourced from a sandbox connection',
   statement: 'Sourced from a PDF statement you imported in this session',
@@ -53,7 +53,7 @@ const DATED: Provenance[] = ['csv', 'statement'];
  * can honestly claim. Anything other than "all the same" is "mixed".
  */
 export function combineProvenance(parts: Provenance[]): Provenance {
-  if (parts.length === 0) return 'mock';
+  if (parts.length === 0) return 'sample';
   const unique = new Set(parts);
   return unique.size === 1 ? [...unique][0] : 'mixed';
 }

@@ -26,7 +26,7 @@ export default function DashboardPage() {
   // Every derived number comes from here — nothing is hardcoded downstream.
   // Imported statements, sandbox connections and hand-entered transactions are
   // passed as overrides; the provider omits the keys for untouched sources, so
-  // the mock adapters keep owning them and every verified figure is unchanged.
+  // the bundled adapters keep owning them and every verified figure is unchanged.
   const snapshot = useMemo(() => buildSnapshot(toggle, overrides), [toggle, overrides]);
 
   const bills = useMemo(

@@ -1,10 +1,10 @@
 import type { Transaction } from './types';
-import { mockBankTransactions } from '@/data/mockBank';
+import { sampleBankTransactions } from '@/data/sampleBank';
 
 /**
  * Bank connector.
  *
- * Today this is a sample adapter over `data/mockBank.ts`. It mimics a current
+ * Today this is a sample adapter over `data/sampleBank.ts`. It mimics a current
  * account feed (salary credits, rent, dining, utilities, subscriptions) that a
  * real integration would surface through the HKMA IADS / Open API sandbox once
  * the customer grants consent. The rest of the app only ever sees the
@@ -12,7 +12,7 @@ import { mockBankTransactions } from '@/data/mockBank';
  * single-file change.
  */
 export function getBankTransactions(): Transaction[] {
-  return mockBankTransactions;
+  return sampleBankTransactions;
 }
 
 export const bankConnectorMeta = {

@@ -122,7 +122,7 @@ export function getSandboxAppsFor(source: LedgerSourceId): SandboxAppOption[] {
 
 /**
  * The adapter. Implements the same `getTransactions(): Transaction[]` contract
- * as the mock bank / Octopus connectors, so `buildSnapshot` accepts it
+ * as the bundled bank / Octopus connectors, so `buildSnapshot` accepts it
  * unchanged.
  */
 export function createSandboxLedgerAdapter(app: SandboxApp) {

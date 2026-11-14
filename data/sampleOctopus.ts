@@ -1,14 +1,14 @@
 import type { Transaction } from '@/lib/connectors/types';
 
 /**
- * Mock Octopus card activity. In reality Octopus exposes no public
+ * Sample Octopus card activity. In reality Octopus exposes no public
  * transaction API, so these rows represent what a user would get from a
  * manual CSV export of their Octopus app history.
  *
  * Amount convention: negative = money out (Octopus is a stored-value card, so
  * every row here is a spend).
  */
-export const mockOctopusTransactions: Transaction[] = [
+export const sampleOctopusTransactions: Transaction[] = [
   // ---------------------------------------------------------------- September 2026
   {
     id: 'octo-2026-09-mtr-1',

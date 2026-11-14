@@ -1,15 +1,15 @@
 import type { Holding } from './types';
-import { mockHoldings } from '@/data/mockInvestments';
+import { sampleHoldings } from '@/data/sampleInvestments';
 
 /**
  * Investment connector.
  *
- * There is no standard consented brokerage API across HK brokers, so this mock
+ * There is no standard consented brokerage API across HK brokers, so this sample
  * adapter represents a portfolio snapshot the user would import via CSV/manual
  * entry (or a future aggregator). It returns normalised `Holding[]`.
  */
 export function getHoldings(): Holding[] {
-  return mockHoldings;
+  return sampleHoldings;
 }
 
 export const investmentConnectorMeta = {

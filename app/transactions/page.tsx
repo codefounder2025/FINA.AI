@@ -24,7 +24,7 @@ export default function TransactionsPage() {
   const { overrides, manualTransactions, removeManualTransaction, provenance } = usePortfolio();
 
   // The provider's overrides fold in imported statements, sandbox connections
-  // and hand-entered transactions; untouched sources fall through to the mocks.
+  // and hand-entered transactions; untouched sources fall through to the bundled adapters.
   const all = useMemo(
     () => [...getAllTransactions(overrides)].sort((a, b) => b.date.localeCompare(a.date)),
     [overrides],
