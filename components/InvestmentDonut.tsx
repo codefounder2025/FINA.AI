@@ -24,14 +24,18 @@ export default function InvestmentDonut({ allocation, total }: InvestmentDonutPr
   })).filter((row) => row.value > 0);
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
       <header className="mb-4">
-        <h2 className="text-sm font-semibold text-slate-900">Investment allocation</h2>
-        <p className="mt-0.5 text-xs text-slate-500">By asset class (mock portfolio)</p>
+        <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+          Investment allocation
+        </h2>
+        <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+          By asset class (mock portfolio)
+        </p>
       </header>
 
       {data.length === 0 || total <= 0 ? (
-        <p className="py-16 text-center text-sm text-slate-400">
+        <p className="py-16 text-center text-sm text-slate-500 dark:text-slate-400">
           Investments are switched off — turn them on to see the allocation.
         </p>
       ) : (
@@ -56,7 +60,9 @@ export default function InvestmentDonut({ allocation, total }: InvestmentDonutPr
                   formatter={(value: number) => formatHKD(value)}
                   contentStyle={{
                     borderRadius: 12,
-                    border: '1px solid #e2e8f0',
+                    border: '1px solid var(--chart-tooltip-border)',
+                    background: 'var(--chart-tooltip-bg)',
+                    color: 'var(--chart-tooltip-text)',
                     fontSize: 12,
                   }}
                 />
@@ -67,7 +73,7 @@ export default function InvestmentDonut({ allocation, total }: InvestmentDonutPr
           <ul className="mt-4 space-y-2">
             {data.map((row) => (
               <li key={row.name} className="flex items-center justify-between text-sm">
-                <span className="flex items-center gap-2 text-slate-600">
+                <span className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
                   <span
                     aria-hidden
                     className="h-2.5 w-2.5 rounded-full"
@@ -75,9 +81,9 @@ export default function InvestmentDonut({ allocation, total }: InvestmentDonutPr
                   />
                   {row.name}
                 </span>
-                <span className="tabular-nums text-slate-900">
+                <span className="tabular-nums text-slate-900 dark:text-slate-100">
                   {formatHKD(row.value)}
-                  <span className="ml-2 text-xs text-slate-400">
+                  <span className="ml-2 text-xs text-slate-500 dark:text-slate-400">
                     {formatPercent(row.value / total)}
                   </span>
                 </span>

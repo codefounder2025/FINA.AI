@@ -57,17 +57,19 @@ export default function InsightPanel({ snapshot }: InsightPanelProps) {
   }, [payload]);
 
   return (
-    <section className="rounded-2xl border border-indigo-200 bg-gradient-to-br from-indigo-50 via-white to-white p-5 shadow-sm">
+    <section className="rounded-2xl border border-indigo-200 bg-gradient-to-br from-indigo-50 via-white to-white p-5 shadow-sm dark:border-indigo-900 dark:from-indigo-950 dark:via-slate-900 dark:to-slate-900">
       <header className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-600 text-xs font-bold text-white">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-600 text-xs font-bold text-white dark:bg-indigo-500 dark:text-slate-950">
             AI
           </span>
-          <h2 className="text-sm font-semibold text-slate-900">Insight panel</h2>
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Insight panel</h2>
         </div>
         <span
           className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-            source === 'ai' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-500'
+            source === 'ai'
+              ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300'
+              : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'
           }`}
           title={
             source === 'ai'
@@ -82,14 +84,14 @@ export default function InsightPanel({ snapshot }: InsightPanelProps) {
 
       <ul className="mt-4 space-y-3">
         {insights.map((insight) => (
-          <li key={insight} className="flex gap-3 text-sm leading-relaxed text-slate-700">
+          <li key={insight} className="flex gap-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
             <span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500" />
             <span>{insight}</span>
           </li>
         ))}
       </ul>
 
-      <p className="mt-4 border-t border-indigo-100 pt-3 text-xs text-slate-400">
+      <p className="mt-4 border-t border-indigo-100 pt-3 text-xs text-slate-500 dark:border-indigo-900 dark:text-slate-400">
         Derived live from the aggregated mock dataset — toggle a source and these are recalculated.
       </p>
     </section>

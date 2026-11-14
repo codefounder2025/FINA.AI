@@ -7,10 +7,10 @@ interface SummaryCardProps {
 }
 
 const ACCENTS: Record<NonNullable<SummaryCardProps['accent']>, string> = {
-  blue: 'text-blue-600',
-  orange: 'text-orange-600',
-  green: 'text-green-600',
-  slate: 'text-slate-900',
+  blue: 'text-blue-600 dark:text-blue-400',
+  orange: 'text-orange-600 dark:text-orange-400',
+  green: 'text-green-600 dark:text-green-400',
+  slate: 'text-slate-900 dark:text-slate-100',
 };
 
 export default function SummaryCard({
@@ -21,13 +21,15 @@ export default function SummaryCard({
   delta = null,
 }: SummaryCardProps) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
       <div className="flex items-start justify-between gap-3">
-        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</p>
+        <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{label}</p>
         {delta !== null && (
           <span
             className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
-              delta > 0 ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'
+              delta > 0
+                ? 'bg-red-50 text-red-800 dark:bg-red-950 dark:text-red-300'
+                : 'bg-green-50 text-green-800 dark:bg-green-950 dark:text-green-300'
             }`}
           >
             {delta > 0 ? '+' : ''}
@@ -38,7 +40,7 @@ export default function SummaryCard({
       <p className={`mt-3 text-2xl font-semibold tabular-nums sm:text-3xl ${ACCENTS[accent]}`}>
         {value}
       </p>
-      {hint && <p className="mt-2 text-xs leading-relaxed text-slate-500">{hint}</p>}
+      {hint && <p className="mt-2 text-xs leading-relaxed text-slate-500 dark:text-slate-400">{hint}</p>}
     </div>
   );
 }

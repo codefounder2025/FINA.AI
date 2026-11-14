@@ -59,24 +59,24 @@ export default function TransactionsPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
           Unified Transactions
         </h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
           Bank and Octopus activity in one feed · mock data · newest first
         </p>
       </header>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <label className="block">
-            <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <span className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
               Source
             </span>
             <select
               value={source}
               onChange={(event) => setSource(event.target.value as Source | 'all')}
-              className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-slate-900 focus:outline-none"
+              className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-slate-900 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-slate-100"
             >
               <option value="all">All sources</option>
               <option value="bank">Bank</option>
@@ -85,13 +85,13 @@ export default function TransactionsPage() {
           </label>
 
           <label className="block">
-            <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <span className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
               Category
             </span>
             <select
               value={category}
               onChange={(event) => setCategory(event.target.value as Category | 'all')}
-              className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-slate-900 focus:outline-none"
+              className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-slate-900 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-slate-100"
             >
               <option value="all">All categories</option>
               {CATEGORIES.map((item) => (
@@ -103,41 +103,41 @@ export default function TransactionsPage() {
           </label>
 
           <label className="block">
-            <span className="text-xs font-medium uppercase tracking-wide text-slate-500">From</span>
+            <span className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">From</span>
             <input
               type="date"
               value={from}
               onChange={(event) => setFrom(event.target.value)}
-              className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-slate-900 focus:outline-none"
+              className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-slate-900 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-slate-100"
             />
           </label>
 
           <label className="block">
-            <span className="text-xs font-medium uppercase tracking-wide text-slate-500">To</span>
+            <span className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">To</span>
             <input
               type="date"
               value={to}
               onChange={(event) => setTo(event.target.value)}
-              className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-slate-900 focus:outline-none"
+              className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-slate-900 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-slate-100"
             />
           </label>
         </div>
 
-        <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-slate-100 pt-4 text-sm">
-          <span className="text-slate-600">
-            <span className="font-semibold text-slate-900">{filtered.length}</span> transactions
+        <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-slate-100 pt-4 text-sm dark:border-slate-800">
+          <span className="text-slate-600 dark:text-slate-300">
+            <span className="font-semibold text-slate-900 dark:text-slate-100">{filtered.length}</span> transactions
           </span>
-          <span className="text-slate-600">
-            Spent <span className="font-semibold text-slate-900">{formatHKD(spent)}</span>
+          <span className="text-slate-600 dark:text-slate-300">
+            Spent <span className="font-semibold text-slate-900 dark:text-slate-100">{formatHKD(spent)}</span>
           </span>
-          <span className="text-slate-600">
-            Received <span className="font-semibold text-green-600">{formatHKD(received)}</span>
+          <span className="text-slate-600 dark:text-slate-300">
+            Received <span className="font-semibold text-green-600 dark:text-green-400">{formatHKD(received)}</span>
           </span>
           {isFiltered && (
             <button
               type="button"
               onClick={reset}
-              className="ml-auto rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:border-slate-400"
+              className="ml-auto rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:border-slate-400 dark:border-slate-700 dark:text-slate-300 dark:hover:border-slate-500"
             >
               Reset filters
             </button>
@@ -145,13 +145,13 @@ export default function TransactionsPage() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-white px-5 shadow-sm">
+      <section className="rounded-2xl border border-slate-200 bg-white px-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         {filtered.length === 0 ? (
-          <p className="py-16 text-center text-sm text-slate-400">
+          <p className="py-16 text-center text-sm text-slate-500 dark:text-slate-400">
             No transactions match these filters.
           </p>
         ) : (
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-slate-100 dark:divide-slate-800">
             {filtered.map((transaction) => (
               <TransactionRow key={transaction.id} transaction={transaction} />
             ))}

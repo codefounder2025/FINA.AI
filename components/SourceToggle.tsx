@@ -20,7 +20,7 @@ export default function SourceToggle({ value, onChange }: SourceToggleProps) {
 
   return (
     <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Data sources">
-      <span className="text-xs font-medium uppercase tracking-wide text-slate-500">Sources</span>
+      <span className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Sources</span>
       {SOURCES.map((source) => {
         const enabled = value[source];
         return (
@@ -32,7 +32,7 @@ export default function SourceToggle({ value, onChange }: SourceToggleProps) {
             className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium transition ${
               enabled
                 ? 'border-transparent text-white shadow-sm'
-                : 'border-slate-300 bg-white text-slate-500 hover:border-slate-400'
+                : 'border-slate-300 bg-white text-slate-500 hover:border-slate-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 dark:hover:border-slate-500'
             }`}
             style={enabled ? { backgroundColor: SOURCE_COLORS[source] } : undefined}
           >

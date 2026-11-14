@@ -2,10 +2,44 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
+/*
+ * Theme
+ * -----
+ * The active palette is selected by a `dark` class on <html>. That class is set
+ * before first paint by an inline script in app/layout.tsx, so a reload never
+ * flashes the wrong theme.
+ *
+ * Recharts renders to SVG, so its colours cannot use Tailwind's `dark:` variant.
+ * They are exposed as CSS variables here instead — the charts then re-theme
+ * purely through CSS, with no JavaScript re-render and no hydration risk.
+ */
+
+:root {
   color-scheme: light;
+
+  --chart-grid: #e2e8f0;
+  --chart-axis: #475569;
+  --chart-cursor: rgba(148, 163, 184, 0.12);
+  --chart-tooltip-bg: #ffffff;
+  --chart-tooltip-border: #e2e8f0;
+  --chart-tooltip-text: #0f172a;
+}
+
+html.dark {
+  color-scheme: dark;
+
+  --chart-grid: #1e293b;
+  --chart-axis: #94a3b8;
+  --chart-cursor: rgba(148, 163, 184, 0.16);
+  --chart-tooltip-bg: #0f172a;
+  --chart-tooltip-border: #334155;
+  --chart-tooltip-text: #e2e8f0;
 }
 
 body {
   @apply bg-slate-50 text-slate-900 antialiased;
+}
+
+html.dark body {
+  @apply bg-slate-950 text-slate-100;
 }
