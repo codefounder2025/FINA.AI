@@ -3,10 +3,12 @@
 import { useMemo, useState } from 'react';
 import InsightPanel from '@/components/InsightPanel';
 import InvestmentDonut from '@/components/InvestmentDonut';
+import ProvenanceBadge from '@/components/ProvenanceBadge';
 import SourceToggle from '@/components/SourceToggle';
 import SpendingBarChart from '@/components/SpendingBarChart';
 import SummaryCard from '@/components/SummaryCard';
 import UpcomingBills from '@/components/UpcomingBills';
+import { usePortfolio } from '@/components/PortfolioProvider';
 import {
   buildSnapshot,
   getTransactionsForSources,
@@ -19,9 +21,15 @@ const DEFAULT_TOGGLE: SourceToggleState = { bank: true, octopus: true, investmen
 
 export default function DashboardPage() {
   const [toggle, setToggle] = useState<SourceToggleState>(DEFAULT_TOGGLE);
+  const { imported } = usePortfolio();
 
   // Every derived number comes from here — nothing is hardcoded downstream.
-  const snapshot = useMemo(() => buildSnapshot(toggle), [toggle]);
+  // An imported CSV is passed as an override, so with no import the mock
+  // adapter is used and every figure is unchanged.
+  const snapshot = useMemo(
+    () => buildSnapshot(toggle, { holdings: imported?.holdings }),
+    [toggle, imported],
+  );
 
   const bills = useMemo(
     () => getUpcomingBills(getTransactionsForSources(snapshot.enabledSources)),
@@ -73,6 +81,7 @@ export default function DashboardPage() {
           label="Investment Value"
           value={formatHKD(snapshot.investmentValue)}
           accent="green"
+          badge={<ProvenanceBadge kind={imported ? 'csv' : 'mock'} date={imported?.importedAt} />}
           hint={
             snapshot.enabledSources.includes('investment')
               ? `${formatPercent(snapshot.investmentShare)} of net position · ${

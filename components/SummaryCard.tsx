@@ -4,6 +4,8 @@ interface SummaryCardProps {
   hint?: string;
   accent?: 'blue' | 'orange' | 'green' | 'slate';
   delta?: number | null;
+  /** Provenance or status marker rendered beside the label. */
+  badge?: React.ReactNode;
 }
 
 const ACCENTS: Record<NonNullable<SummaryCardProps['accent']>, string> = {
@@ -19,11 +21,15 @@ export default function SummaryCard({
   hint,
   accent = 'slate',
   delta = null,
+  badge,
 }: SummaryCardProps) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
       <div className="flex items-start justify-between gap-3">
-        <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{label}</p>
+        <span className="flex flex-wrap items-center gap-2">
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{label}</p>
+          {badge}
+        </span>
         {delta !== null && (
           <span
             className={`rounded-full px-2 py-0.5 text-xs font-semibold ${

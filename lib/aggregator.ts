@@ -22,6 +22,16 @@ export interface SourceToggle {
   investment: boolean;
 }
 
+/**
+ * Optional per-source data overrides. Used by the CSV import flow to swap the
+ * mock portfolio for an imported one without introducing any hidden state:
+ * omitting `holdings` leaves the mock adapter in charge, so every previously
+ * verified figure is unchanged.
+ */
+export interface SnapshotOverrides {
+  holdings?: Holding[];
+}
+
 export interface Totals {
   income: number;
   expense: number;
@@ -209,7 +219,10 @@ function formatMonthKey(key: string): string {
  * Single entry point used by the dashboard and the insight API: takes the
  * current source toggle and returns every derived number the UI needs.
  */
-export function buildSnapshot(toggle: SourceToggle): AggregatedSnapshot {
+export function buildSnapshot(
+  toggle: SourceToggle,
+  overrides: SnapshotOverrides = {},
+): AggregatedSnapshot {
   const enabledSources = (
     Object.keys(toggle) as Array<keyof SourceToggle>
   ).filter((k) => toggle[k]) as Source[];
@@ -217,7 +230,9 @@ export function buildSnapshot(toggle: SourceToggle): AggregatedSnapshot {
   const transactions = getTransactionsForSources(enabledSources);
   const bankTx = toggle.bank ? getBankTransactions() : [];
   const octopusTx = toggle.octopus ? getOctopusTransactions() : [];
-  const holdings = toggle.investment ? getHoldings() : [];
+  const holdings = toggle.investment
+    ? overrides.holdings ?? getHoldings()
+    : [];
 
   // Month axis is derived from the FULL dataset so labels never shift on toggle.
   const months = getMonths(getAllTransactions());

@@ -2,6 +2,9 @@
 
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import type { AssetClass } from '@/lib/connectors/types';
+import ImportCsvButton from '@/components/ImportCsvButton';
+import ProvenanceBadge from '@/components/ProvenanceBadge';
+import { usePortfolio } from '@/components/PortfolioProvider';
 import {
   ASSET_CLASS_COLORS,
   ASSET_CLASS_LABELS,
@@ -17,6 +20,8 @@ interface InvestmentDonutProps {
 const ORDER: AssetClass[] = ['stock', 'etf', 'crypto', 'cash'];
 
 export default function InvestmentDonut({ allocation, total }: InvestmentDonutProps) {
+  const { imported, clearImport } = usePortfolio();
+
   const data = ORDER.map((assetClass) => ({
     name: ASSET_CLASS_LABELS[assetClass],
     value: allocation[assetClass],
@@ -26,12 +31,37 @@ export default function InvestmentDonut({ allocation, total }: InvestmentDonutPr
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
       <header className="mb-4">
-        <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-          Investment allocation
-        </h2>
-        <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-          By asset class (mock portfolio)
-        </p>
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                Investment allocation
+              </h2>
+              <ProvenanceBadge
+                kind={imported ? 'csv' : 'mock'}
+                date={imported?.importedAt}
+              />
+            </div>
+            <p className="mt-0.5 truncate text-xs text-slate-500 dark:text-slate-400">
+              {imported
+                ? `By asset class · imported from ${imported.fileName}`
+                : 'By asset class (mock portfolio)'}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <ImportCsvButton />
+          {imported && (
+            <button
+              type="button"
+              onClick={clearImport}
+              className="rounded-lg px-2 py-1.5 text-xs font-medium text-slate-600 underline-offset-2 transition hover:text-slate-900 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:text-slate-400 dark:hover:text-slate-100"
+            >
+              Clear import
+            </button>
+          )}
+        </div>
       </header>
 
       {data.length === 0 || total <= 0 ? (

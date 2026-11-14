@@ -1,0 +1,8 @@
+ticker,quantity,avgCost,currentPrice,currency,assetClass,name
+0700.HK,200,320,395,HKD,stock,Tencent Holdings
+9988.HK,150,95,118,HKD,stock,Alibaba Group
+2800.HK,1000,19.5,21.4,HKD,etf,Tracker Fund of Hong Kong
+VOO,8,3100,3620,HKD,etf,Vanguard S&P 500 ETF
+BTC,0.05,420000,510000,HKD,crypto,Bitcoin
+ETH,1.2,18000,22500,HKD,crypto,Ethereum
+CASH,15000,1,1,HKD,cash,Settlement cash

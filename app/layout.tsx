@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import NavBar from '@/components/NavBar';
+import { PortfolioProvider } from '@/components/PortfolioProvider';
 
 export const metadata: Metadata = {
   title: 'FINA.AI — Your money, finally in one place',
@@ -24,12 +25,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
       </head>
       <body className="min-h-screen">
-        <NavBar />
-        <main className="mx-auto w-full max-w-6xl px-4 pb-20 pt-8 sm:px-6">{children}</main>
-        <footer className="border-t border-slate-200 py-6 text-center text-xs text-slate-600 dark:border-slate-800 dark:text-slate-400">
-          FINA.AI · BUHack 2.0 · FinTech track · All data is mock — no live bank, Octopus or
-          brokerage connections.
-        </footer>
+        <PortfolioProvider>
+          <NavBar />
+          <main className="mx-auto w-full max-w-6xl px-4 pb-20 pt-8 sm:px-6">{children}</main>
+          <footer className="border-t border-slate-200 py-6 text-center text-xs text-slate-600 dark:border-slate-800 dark:text-slate-400">
+            FINA.AI · BUHack 2.0 · FinTech track · All data is mock — no live bank, Octopus or
+            brokerage connections.
+          </footer>
+        </PortfolioProvider>
       </body>
     </html>
   );
