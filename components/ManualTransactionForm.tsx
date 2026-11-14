@@ -29,7 +29,9 @@ export default function ManualTransactionForm() {
   const { addManualTransaction } = usePortfolio();
   const id = useId();
 
-  const [open, setOpen] = useState(false);
+  // Expanded on load so the form is immediately visible rather than hidden
+  // behind a disclosure button; it can still be collapsed.
+  const [open, setOpen] = useState(true);
   const [source, setSource] = useState<LedgerSourceId>('bank');
   const [direction, setDirection] = useState<'expense' | 'income'>('expense');
   const [merchant, setMerchant] = useState('');
