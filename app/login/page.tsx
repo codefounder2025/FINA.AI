@@ -2,21 +2,28 @@
 
 import Link from 'next/link';
 import { useState, type FormEvent } from 'react';
-import { MIN_PASSWORD_LENGTH, useAuth } from '@/components/AuthProvider';
+import { MIN_NAME_LENGTH, MIN_PASSWORD_LENGTH, useAuth } from '@/components/AuthProvider';
 import { safeNextPath } from '@/lib/session';
 
 /**
- * Demo sign-in screen.
+ * Demo sign-in / create-account screen.
  *
- * The email/password panel behaves like a real one — labels, autofill hints,
- * inline validation, an alert region — but nothing is verified against a
- * backend and nothing is transmitted. `?next=` is read from the URL at submit
- * time rather than through `useSearchParams`, which keeps the page statically
- * rendered instead of forcing it behind a Suspense boundary.
+ * Both panels behave like the real thing — labels, autofill hints, inline
+ * validation, an alert region — but nothing is verified against a backend and
+ * nothing is transmitted. `?next=` is read from the URL at submit time rather
+ * than through `useSearchParams`, which keeps the page statically rendered
+ * instead of forcing it behind a Suspense boundary.
  */
+
+type Mode = 'signin' | 'signup';
 
 const DEMO_EMAIL = 'student@fina.ai';
 const DEMO_PASSWORD = 'demo1234';
+
+const FIELD_CLASS =
+  'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition placeholder:text-slate-400 focus-visible:border-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100';
+
+const LABEL_CLASS = 'block text-xs font-medium text-slate-700 dark:text-slate-300';
 
 function resolveTarget(): string {
   const requested = new URLSearchParams(window.location.search).get('next');
@@ -24,11 +31,16 @@ function resolveTarget(): string {
 }
 
 export default function LoginPage() {
-  const { signIn, continueAsVisitor } = useAuth();
+  const { signIn, createAccount, continueAsVisitor } = useAuth();
+  const [mode, setMode] = useState<Mode>('signin');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState(DEMO_EMAIL);
   const [password, setPassword] = useState(DEMO_PASSWORD);
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const isSignUp = mode === 'signup';
 
   // A full navigation rather than router.push: middleware is guaranteed to
   // re-run, and a pre-sign-in redirect cannot linger in the router cache.
@@ -36,9 +48,26 @@ export default function LoginPage() {
     window.location.assign(resolveTarget());
   }
 
+  /** Switching panels must not carry the previous panel's error across. */
+  function switchMode(next: Mode) {
+    setMode(next);
+    setError(null);
+    setShowPassword(false);
+    if (next === 'signup') {
+      setPassword('');
+      setEmail('');
+    } else {
+      setEmail(DEMO_EMAIL);
+      setPassword(DEMO_PASSWORD);
+    }
+    setConfirmPassword('');
+  }
+
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const message = signIn(email, password);
+    const message = isSignUp
+      ? createAccount(name, email, password, confirmPassword)
+      : signIn(email, password);
     if (message) {
       setError(message);
       return;
@@ -51,18 +80,65 @@ export default function LoginPage() {
     <div className="mx-auto max-w-md py-6">
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
         <h1 className="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-          Sign in to FINA<span className="text-indigo-600 dark:text-indigo-400">.AI</span>
+          {isSignUp ? 'Create your FINA' : 'Sign in to FINA'}
+          <span className="text-indigo-600 dark:text-indigo-400">.AI</span>
+          {isSignUp ? ' account' : ''}
         </h1>
         <p className="mt-1.5 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
-          Use the email/password panel below, or skip it and continue as a visitor.
+          {isSignUp
+            ? 'Pick any name, email and password — this demo stores none of them.'
+            : 'Use the email/password panel below, or skip it and continue as a visitor.'}
         </p>
 
-        <form onSubmit={onSubmit} noValidate className="mt-6 space-y-4">
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-xs font-medium text-slate-700 dark:text-slate-300"
+        <div
+          role="group"
+          aria-label="Sign in or create an account"
+          className="mt-5 grid grid-cols-2 gap-1 rounded-lg bg-slate-100 p-1 dark:bg-slate-800"
+        >
+          {(
+            [
+              ['signin', 'Sign in'],
+              ['signup', 'Create account'],
+            ] as const
+          ).map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              aria-pressed={mode === value}
+              onClick={() => switchMode(value)}
+              className={
+                mode === value
+                  ? 'rounded-md bg-white px-3 py-1.5 text-xs font-semibold text-slate-900 shadow-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500 dark:bg-slate-950 dark:text-slate-100'
+                  : 'rounded-md px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500 dark:text-slate-400 dark:hover:text-slate-100'
+              }
             >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        <form onSubmit={onSubmit} noValidate className="mt-5 space-y-4">
+          {isSignUp && (
+            <div>
+              <label htmlFor="name" className={LABEL_CLASS}>
+                Full name
+              </label>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                autoComplete="name"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                aria-describedby={error ? 'login-error' : undefined}
+                className={`mt-1.5 ${FIELD_CLASS}`}
+                placeholder="Ka Ming Chan"
+              />
+            </div>
+          )}
+
+          <div>
+            <label htmlFor="email" className={LABEL_CLASS}>
               Email address
             </label>
             <input
@@ -74,16 +150,13 @@ export default function LoginPage() {
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               aria-describedby={error ? 'login-error' : undefined}
-              className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition placeholder:text-slate-400 focus-visible:border-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+              className={`mt-1.5 ${FIELD_CLASS}`}
               placeholder="you@university.edu.hk"
             />
           </div>
 
           <div>
-            <label
-              htmlFor="password"
-              className="block text-xs font-medium text-slate-700 dark:text-slate-300"
-            >
+            <label htmlFor="password" className={LABEL_CLASS}>
               Password
             </label>
             <div className="relative mt-1.5">
@@ -91,12 +164,12 @@ export default function LoginPage() {
                 id="password"
                 name="password"
                 type={showPassword ? 'text' : 'password'}
-                autoComplete="current-password"
+                autoComplete={isSignUp ? 'new-password' : 'current-password'}
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 aria-describedby={error ? 'login-error' : undefined}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 pr-16 text-sm text-slate-900 shadow-sm transition placeholder:text-slate-400 focus-visible:border-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
-                placeholder="At least 6 characters"
+                className={`${FIELD_CLASS} pr-16`}
+                placeholder={`At least ${MIN_PASSWORD_LENGTH} characters`}
               />
               <button
                 type="button"
@@ -108,6 +181,25 @@ export default function LoginPage() {
               </button>
             </div>
           </div>
+
+          {isSignUp && (
+            <div>
+              <label htmlFor="confirm-password" className={LABEL_CLASS}>
+                Confirm password
+              </label>
+              <input
+                id="confirm-password"
+                name="confirm-password"
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="new-password"
+                value={confirmPassword}
+                onChange={(event) => setConfirmPassword(event.target.value)}
+                aria-describedby={error ? 'login-error' : undefined}
+                className={`mt-1.5 ${FIELD_CLASS}`}
+                placeholder="Type it once more"
+              />
+            </div>
+          )}
 
           {error && (
             <p
@@ -123,9 +215,35 @@ export default function LoginPage() {
             type="submit"
             className="w-full rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
           >
-            Sign in
+            {isSignUp ? 'Create account' : 'Sign in'}
           </button>
         </form>
+
+        <p className="mt-3 text-center text-xs text-slate-500 dark:text-slate-400">
+          {isSignUp ? (
+            <>
+              Already have an account?{' '}
+              <button
+                type="button"
+                onClick={() => switchMode('signin')}
+                className="font-medium text-indigo-600 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:text-indigo-400"
+              >
+                Sign in
+              </button>
+            </>
+          ) : (
+            <>
+              New to FINA.AI?{' '}
+              <button
+                type="button"
+                onClick={() => switchMode('signup')}
+                className="font-medium text-indigo-600 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:text-indigo-400"
+              >
+                Create an account
+              </button>
+            </>
+          )}
+        </p>
 
         <div className="my-5 flex items-center gap-3">
           <span className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
@@ -154,14 +272,15 @@ export default function LoginPage() {
       {/* Disclosed plainly: judges should be able to tell this apart from real auth. */}
       <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
         <h2 className="text-xs font-semibold text-slate-700 dark:text-slate-200">
-          This sign-in is a front-end demo
+          This sign-in and sign-up are a front-end demo
         </h2>
         <p className="mt-1.5 text-[11px] leading-relaxed text-slate-600 dark:text-slate-400">
           No account is created, no password is stored and no request is sent anywhere — the
-          session is a cookie in your own browser that lasts 12 hours. Any valid email and any
-          password of {MIN_PASSWORD_LENGTH} or more characters is accepted, so the panel above is
-          prefilled to save typing. An obviously malformed email address is still rejected, because
-          the validation itself is real.
+          session is a cookie in your own browser that lasts 12 hours. Signing in accepts any
+          valid email and any password of {MIN_PASSWORD_LENGTH} or more characters; creating an
+          account additionally asks for a name of {MIN_NAME_LENGTH} or more characters and a
+          matching confirmation. An obviously malformed email address or a mismatched
+          confirmation is still rejected, because the validation itself is real.
         </p>
       </div>
 

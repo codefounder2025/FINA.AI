@@ -56,7 +56,7 @@ middleware.ts                   # Demo-session route gate (redirects to /login)
 app/
   layout.tsx                    # Root layout + nav + footer
   page.tsx                      # Landing
-  login/page.tsx                # Demo sign-in: email/password panel + visitor path
+  login/page.tsx                # Demo sign-in / create-account panel + visitor path
   globals.css                   # Tailwind entry
   dashboard/page.tsx            # Dashboard + source toggle + AI insight panel
   transactions/page.tsx         # Unified transaction list + filters + manual entry
@@ -197,9 +197,10 @@ The insight text changes with the toggle, because it is regenerated from the sam
 - **Fallback first.** `lib/insights.ts` runs on the client so the panel paints instantly, and the
   API route reuses the exact same function when the LLM is unavailable.
 - **No client state library.** `useState` + `useMemo` only. No database, no password store, no OAuth.
-- **Demo sign-in.** `/login` gates the app behind a front-end-only session cookie (`middleware.ts`
-  redirects unauthenticated page requests). Any valid email plus any 6+ character password is
-  accepted, the visitor button skips the form entirely, and nothing is sent to a server.
+- **Demo sign-in and sign-up.** `/login` gates the app behind a front-end-only session cookie
+  (`middleware.ts` redirects unauthenticated page requests). Any valid email plus any 6+ character
+  password is accepted; the Create account panel additionally takes a name and a matching
+  confirmation. The visitor button skips the form entirely, and nothing is sent to a server.
 
 ## Constraints respected
 

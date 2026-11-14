@@ -20,6 +20,7 @@ import {
 
 export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const MIN_PASSWORD_LENGTH = 6;
+export const MIN_NAME_LENGTH = 2;
 
 interface AuthContextValue {
   session: Session | null;
@@ -27,6 +28,13 @@ interface AuthContextValue {
   ready: boolean;
   /** Returns an error message, or null when the (demo) sign-in succeeded. */
   signIn: (email: string, password: string) => string | null;
+  /** Demo account creation: same rules as signIn, plus a name and a confirmation. */
+  createAccount: (
+    name: string,
+    email: string,
+    password: string,
+    confirmPassword: string,
+  ) => string | null;
   continueAsVisitor: () => void;
   signOut: () => void;
 }
@@ -52,6 +60,17 @@ function clearSessionCookie() {
   document.cookie = `${SESSION_COOKIE}=; path=/; max-age=0; samesite=lax`;
 }
 
+/** Shared by signIn and createAccount so both agree on what is well-formed. */
+function checkCredentials(email: string, password: string): string | null {
+  const trimmed = email.trim();
+  if (trimmed.length === 0) return 'Enter your email address.';
+  if (!EMAIL_PATTERN.test(trimmed)) return 'That does not look like an email address.';
+  if (password.length < MIN_PASSWORD_LENGTH) {
+    return `Your password must be at least ${MIN_PASSWORD_LENGTH} characters.`;
+  }
+  return null;
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [ready, setReady] = useState(false);
@@ -64,13 +83,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signIn = useCallback((email: string, password: string): string | null => {
-    const trimmed = email.trim();
-    if (trimmed.length === 0) return 'Enter your email address.';
-    if (!EMAIL_PATTERN.test(trimmed)) return 'That does not look like an email address.';
-    if (password.length < MIN_PASSWORD_LENGTH) {
-      return `Your password must be at least ${MIN_PASSWORD_LENGTH} characters.`;
-    }
+    const problem = checkCredentials(email, password);
+    if (problem) return problem;
 
+    const trimmed = email.trim();
     const next: Session = {
       kind: 'user',
       email: trimmed,
@@ -81,6 +97,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setSession(next);
     return null;
   }, []);
+
+  const createAccount = useCallback(
+    (name: string, email: string, password: string, confirmPassword: string): string | null => {
+      const trimmedName = name.trim().replace(/\s+/g, ' ');
+      if (trimmedName.length < MIN_NAME_LENGTH) {
+        return `Enter your name (at least ${MIN_NAME_LENGTH} characters).`;
+      }
+
+      const problem = checkCredentials(email, password);
+      if (problem) return problem;
+
+      if (password !== confirmPassword) return 'The two passwords do not match.';
+
+      const next: Session = {
+        kind: 'user',
+        email: email.trim(),
+        name: trimmedName,
+        since: new Date().toISOString(),
+      };
+      writeSessionCookie(next);
+      setSession(next);
+      return null;
+    },
+    [],
+  );
 
   const continueAsVisitor = useCallback(() => {
     const next: Session = {
@@ -99,8 +140,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ session, ready, signIn, continueAsVisitor, signOut }),
-    [session, ready, signIn, continueAsVisitor, signOut],
+    () => ({ session, ready, signIn, createAccount, continueAsVisitor, signOut }),
+    [session, ready, signIn, createAccount, continueAsVisitor, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
