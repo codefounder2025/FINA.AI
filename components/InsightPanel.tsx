@@ -92,7 +92,7 @@ export default function InsightPanel({ snapshot }: InsightPanelProps) {
       </ul>
 
       <p className="mt-4 border-t border-indigo-100 pt-3 text-xs text-slate-500 dark:border-indigo-900 dark:text-slate-400">
-        Derived live from the aggregated mock dataset — toggle a source and these are recalculated.
+        Derived live from the aggregated dataset — toggle a source and these are recalculated.
       </p>
     </section>
   );

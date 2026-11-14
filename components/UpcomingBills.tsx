@@ -14,7 +14,7 @@ export default function UpcomingBills({ bills, total }: UpcomingBillsProps) {
         <div>
           <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Upcoming bills &amp; subscriptions</h2>
           <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-            Detected from recurring merchants in the mock history
+            Detected from recurring merchants in the transaction history
           </p>
         </div>
         {bills.length > 0 && (

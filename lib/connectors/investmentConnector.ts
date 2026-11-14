@@ -15,8 +15,8 @@ export function getHoldings(): Holding[] {
 export const investmentConnectorMeta = {
   id: 'investment' as const,
   name: 'Investments',
-  provider: 'Brokerage / Wallet — Portfolio (Mock)',
-  status: 'Connected (Mock)' as const,
+  provider: 'Brokerage / Wallet — bundled sample portfolio',
+  status: 'Sample' as const,
   transport: 'CSV / manual portfolio import',
   lastSyncedAt: '2026-11-14T09:05:00+08:00',
   realIntegrationPath:

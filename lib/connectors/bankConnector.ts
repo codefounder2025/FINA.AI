@@ -4,7 +4,7 @@ import { mockBankTransactions } from '@/data/mockBank';
 /**
  * Bank connector.
  *
- * Today this is a mock adapter over `data/mockBank.ts`. It mimics a current
+ * Today this is a sample adapter over `data/mockBank.ts`. It mimics a current
  * account feed (salary credits, rent, dining, utilities, subscriptions) that a
  * real integration would surface through the HKMA IADS / Open API sandbox once
  * the customer grants consent. The rest of the app only ever sees the
@@ -18,8 +18,8 @@ export function getBankTransactions(): Transaction[] {
 export const bankConnectorMeta = {
   id: 'bank' as const,
   name: 'Bank Account',
-  provider: 'HSBC / BOCHK — IADS Sandbox (Mock)',
-  status: 'Connected (Mock)' as const,
+  provider: 'HSBC / BOCHK — bundled sample feed',
+  status: 'Sample' as const,
   transport: 'Account Information API (consented)',
   lastSyncedAt: '2026-11-14T09:12:00+08:00',
   realIntegrationPath:

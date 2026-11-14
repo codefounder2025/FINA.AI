@@ -51,7 +51,7 @@ export default function DashboardPage() {
             Unified Dashboard
           </h1>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            {snapshot.monthLabel} vs {snapshot.previousMonthLabel} · all figures in HKD · mock data
+            {snapshot.monthLabel} vs {snapshot.previousMonthLabel} · all figures in HKD · sample data
           </p>
         </div>
         <SourceToggle value={toggle} onChange={setToggle} />

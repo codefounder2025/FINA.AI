@@ -49,7 +49,7 @@ export default function InvestmentDonut({ allocation, total }: InvestmentDonutPr
                   ? `By asset class · sandbox portfolio (${
                       getSandboxBroker(sandbox.broker)?.name ?? 'broker'
                     })`
-                  : 'By asset class (mock portfolio)'}
+                  : 'By asset class (sample portfolio)'}
             </p>
           </div>
         </div>

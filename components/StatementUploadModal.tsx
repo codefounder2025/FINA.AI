@@ -139,7 +139,7 @@ export default function StatementUploadModal({
             </h2>
             <p id={hintId} className="mt-1 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
               Read in your browser and held for this session only — the file is never uploaded or
-              stored. Importing replaces the mock {noun} ledger.
+              stored. Importing replaces the sample {noun} ledger.
             </p>
           </div>
           <button

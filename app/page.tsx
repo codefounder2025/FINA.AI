@@ -54,7 +54,7 @@ export default function LandingPage() {
         </div>
 
         <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
-          Demo runs entirely on mock data — no login, no live bank or Octopus credentials.
+          Demo runs on a bundled sample dataset — no login, no live bank or Octopus credentials.
         </p>
       </section>
 
@@ -72,7 +72,7 @@ export default function LandingPage() {
               />
               <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">{source.name}</h2>
               <span className="ml-auto rounded-full bg-white/70 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-slate-500 dark:bg-white/10 dark:text-slate-400">
-                Mock
+                Sample
               </span>
             </div>
             <p className="mt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-300">{source.body}</p>

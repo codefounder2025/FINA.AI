@@ -130,7 +130,7 @@ export default function ImportCsvModal({ open, onClose, onConfirm }: ImportCsvMo
               className="mt-1 text-xs leading-relaxed text-slate-600 dark:text-slate-400"
             >
               Parsed in your browser and held for this session only — nothing is uploaded and
-              nothing is stored. Importing replaces the mock portfolio.
+              nothing is stored. Importing replaces the sample portfolio.
             </p>
           </div>
           <button

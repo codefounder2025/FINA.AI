@@ -171,7 +171,7 @@ function buildUserPrompt(snapshot: InsightInput): string {
         }
       : null,
   };
-  return `Aggregated data (HKD, mock dataset):\n${JSON.stringify(summary, null, 2)}\n\nWrite the insights now.`;
+  return `Aggregated data (HKD, sample dataset):\n${JSON.stringify(summary, null, 2)}\n\nWrite the insights now.`;
 }
 
 function parseInsights(content: string): string[] {

@@ -5,9 +5,9 @@ import { formatDate } from '@/lib/format';
  *
  * Every figure in the app is traceable to a named source of data. This badge
  * states which, and never claims a live connection:
- *   mock      — the built-in mock adapter
+ *   mock      — the bundled sample dataset
  *   csv       — a portfolio the user imported from a broker CSV
- *   sandbox   — a simulated connection flow
+ *   sandbox   — a sandbox connection flow
  *   statement — a PDF statement the user imported
  *   manual    — transactions the user typed in by hand
  *   mixed     — a figure derived from more than one of the above
@@ -28,7 +28,7 @@ const STYLES: Record<Provenance, string> = {
 };
 
 const LABELS: Record<Provenance, string> = {
-  mock: 'Mock',
+  mock: 'Sample',
   csv: 'CSV',
   sandbox: 'Sandbox',
   statement: 'Statement',
@@ -37,9 +37,9 @@ const LABELS: Record<Provenance, string> = {
 };
 
 const TITLES: Record<Provenance, string> = {
-  mock: 'Sourced from the built-in mock adapter',
+  mock: 'Sourced from the bundled sample dataset',
   csv: 'Sourced from a broker CSV you imported in this session',
-  sandbox: 'Sourced from a simulated sandbox connection',
+  sandbox: 'Sourced from a sandbox connection',
   statement: 'Sourced from a PDF statement you imported in this session',
   manual: 'Includes transactions you added by hand in this session',
   mixed: 'Derived from more than one source — see each card for details',

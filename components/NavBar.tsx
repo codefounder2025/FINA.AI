@@ -25,7 +25,7 @@ export default function NavBar() {
             FINA<span className="text-indigo-600 dark:text-indigo-400">.AI</span>
           </span>
           <span className="hidden rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-slate-500 sm:inline dark:bg-slate-800 dark:text-slate-400">
-            Mock data
+            Sample data
           </span>
         </Link>
 

@@ -46,7 +46,7 @@ export default function SpendingBarChart({
             Spending by category
           </h2>
           <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-            {monthLabel} · bank + Octopus combined (mock)
+            {monthLabel} · bank + Octopus combined (sample)
           </p>
         </div>
       </header>
