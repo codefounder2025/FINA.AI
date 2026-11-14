@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import AuthMenu from '@/components/AuthMenu';
 import ThemeToggle from '@/components/ThemeToggle';
 
 const LINKS = [
@@ -52,6 +53,7 @@ export default function NavBar() {
 
           {/* After the nav links in DOM order, as specified. */}
           <ThemeToggle />
+          <AuthMenu />
         </div>
       </div>
     </header>

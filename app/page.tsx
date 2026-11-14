@@ -54,7 +54,8 @@ export default function LandingPage() {
         </div>
 
         <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
-          Demo runs on a bundled sample dataset — no login, no live bank or Octopus credentials.
+          Demo runs on a bundled sample dataset — sign in with any email, or continue as a visitor.
+          No live bank or Octopus credentials.
         </p>
       </section>
 

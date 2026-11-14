@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import NavBar from '@/components/NavBar';
+import { AuthProvider } from '@/components/AuthProvider';
 import { PortfolioProvider } from '@/components/PortfolioProvider';
 
 export const metadata: Metadata = {
@@ -25,14 +26,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
       </head>
       <body className="min-h-screen">
-        <PortfolioProvider>
-          <NavBar />
-          <main className="mx-auto w-full max-w-6xl px-4 pb-20 pt-8 sm:px-6">{children}</main>
-          <footer className="border-t border-slate-200 py-6 text-center text-xs text-slate-600 dark:border-slate-800 dark:text-slate-400">
-            FINA.AI · BUHack 2.0 · FinTech track · All data is a bundled sample — no live bank,
-            Octopus or brokerage connections.
-          </footer>
-        </PortfolioProvider>
+        <AuthProvider>
+          <PortfolioProvider>
+            <NavBar />
+            <main className="mx-auto w-full max-w-6xl px-4 pb-20 pt-8 sm:px-6">{children}</main>
+            <footer className="border-t border-slate-200 py-6 text-center text-xs text-slate-600 dark:border-slate-800 dark:text-slate-400">
+              FINA.AI · BUHack 2.0 · FinTech track · All data is a bundled sample — no live bank,
+              Octopus or brokerage connections.
+            </footer>
+          </PortfolioProvider>
+        </AuthProvider>
       </body>
     </html>
   );

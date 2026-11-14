@@ -52,30 +52,48 @@ The full 90-second judge walkthrough is in [DEMO_SCRIPT.md](./DEMO_SCRIPT.md).
 ## File structure
 
 ```
+middleware.ts                   # Demo-session route gate (redirects to /login)
 app/
   layout.tsx                    # Root layout + nav + footer
   page.tsx                      # Landing
+  login/page.tsx                # Demo sign-in: email/password panel + visitor path
   globals.css                   # Tailwind entry
   dashboard/page.tsx            # Dashboard + source toggle + AI insight panel
-  transactions/page.tsx         # Unified transaction list + filters
+  transactions/page.tsx         # Unified transaction list + filters + manual entry
   connections/page.tsx          # Three connector cards
   api/insight/route.ts          # LLM insight route with rule-based fallback
 components/
   NavBar.tsx
+  AuthProvider.tsx              # Demo session state, mirrors the session cookie
+  AuthMenu.tsx                  # Nav login menu / account disclosure
+  ThemeToggle.tsx               # Three-state Light -> Dark -> System
+  PortfolioProvider.tsx         # Session-scoped source overrides
+  ProvenanceBadge.tsx           # Sample / CSV / Sandbox / Statement / Manual
   SummaryCard.tsx
   SpendingBarChart.tsx          # recharts bar chart
   InvestmentDonut.tsx           # recharts donut + legend
   TransactionRow.tsx
+  ManualTransactionForm.tsx     # Hand-entered transactions
   SourceBadge.tsx               # Bank = blue, Octopus = orange, Investment = green
+  SourceToggle.tsx
   InsightPanel.tsx              # Rule-based first, upgraded by the LLM route
   UpcomingBills.tsx
-  SourceToggle.tsx
+  ImportCsvButton.tsx / ImportCsvModal.tsx        # Broker CSV import
+  SandboxBrokerPanel.tsx / SandboxConnectModal.tsx # Simulated broker connection
+  StatementUploadButton.tsx / StatementUploadModal.tsx # PDF statement import
+  ConnectAppPanel.tsx / ConnectAppModal.tsx       # Simulated bank/Octopus app link
 lib/
+  session.ts                    # Session shape, cookie codec, route guard helpers
+  pdf.ts                        # Client-side PDF text extraction
   connectors/
     types.ts                    # Transaction, Holding, Source, Category, AssetClass
     bankConnector.ts            # getBankTransactions(): Transaction[]
     octopusConnector.ts         # getOctopusTransactions(): Transaction[]
     investmentConnector.ts      # getHoldings(): Holding[]
+    csvBrokerAdapter.ts         # Broker CSV -> Holding[]
+    sandboxBrokerAdapter.ts     # Simulated broker connection -> Holding[]
+    sandboxLedgerAdapter.ts     # Simulated bank/Octopus app -> Transaction[]
+    statementParser.ts          # Statement text lines -> Transaction[]
   aggregator.ts                 # Normalise + compute every derived number
   insights.ts                   # getRuleBasedInsights() — the guaranteed fallback
   format.ts                     # Currency / percent / date formatters + colour maps
@@ -83,6 +101,9 @@ data/
   sampleBank.ts                 # 30 bank rows, 2 months (Sep + Oct 2026)
   sampleOctopus.ts              # 15 Octopus rows
   sampleInvestments.ts          # 8 holdings (2 HK stocks, 2 ETFs, 2 crypto, 2 cash)
+public/samples/
+  sample-bank-statement.pdf     # Text-layer PDFs for the statement import
+  sample-octopus-statement.pdf
 ```
 
 ---
@@ -175,9 +196,13 @@ The insight text changes with the toggle, because it is regenerated from the sam
   is the single entry point used by both the dashboard and the insight API.
 - **Fallback first.** `lib/insights.ts` runs on the client so the panel paints instantly, and the
   API route reuses the exact same function when the LLM is unavailable.
-- **No client state library.** `useState` + `useMemo` only. No database, no auth, no OAuth.
+- **No client state library.** `useState` + `useMemo` only. No database, no password store, no OAuth.
+- **Demo sign-in.** `/login` gates the app behind a front-end-only session cookie (`middleware.ts`
+  redirects unauthenticated page requests). Any valid email plus any 6+ character password is
+  accepted, the visitor button skips the form entirely, and nothing is sent to a server.
 
 ## Constraints respected
 
-No login/signup · no real bank/Octopus/brokerage API calls · no external database · no OAuth ·
-no fake "live" language · works with `npm install && npm run dev` and zero env vars.
+Demo-only sign-in (no accounts, no password store) · no real bank/Octopus/brokerage API calls ·
+no external database · no OAuth · no fake "live" language · works with `npm install && npm run dev`
+and zero env vars.
