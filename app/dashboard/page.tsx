@@ -21,19 +21,17 @@ const DEFAULT_TOGGLE: SourceToggleState = { bank: true, octopus: true, investmen
 
 export default function DashboardPage() {
   const [toggle, setToggle] = useState<SourceToggleState>(DEFAULT_TOGGLE);
-  const { activeHoldings, provenance, provenanceAt } = usePortfolio();
+  const { provenance, provenanceAt, overrides } = usePortfolio();
 
   // Every derived number comes from here — nothing is hardcoded downstream.
-  // An imported CSV or sandbox portfolio is passed as an override, so with
-  // neither active the mock adapter is used and every figure is unchanged.
-  const snapshot = useMemo(
-    () => buildSnapshot(toggle, { holdings: activeHoldings }),
-    [toggle, activeHoldings],
-  );
+  // Imported statements, sandbox connections and hand-entered transactions are
+  // passed as overrides; the provider omits the keys for untouched sources, so
+  // the mock adapters keep owning them and every verified figure is unchanged.
+  const snapshot = useMemo(() => buildSnapshot(toggle, overrides), [toggle, overrides]);
 
   const bills = useMemo(
-    () => getUpcomingBills(getTransactionsForSources(snapshot.enabledSources)),
-    [snapshot.enabledSources],
+    () => getUpcomingBills(getTransactionsForSources(snapshot.enabledSources, overrides)),
+    [snapshot.enabledSources, overrides],
   );
 
   const spendingChange =
@@ -83,8 +81,8 @@ export default function DashboardPage() {
           accent="green"
           badge={
             <ProvenanceBadge
-              kind={provenance}
-              date={provenance === 'csv' ? provenanceAt : undefined}
+              kind={provenance.investment}
+              date={provenanceAt.investment}
             />
           }
           hint={

@@ -1,7 +1,10 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import ManualTransactionForm from '@/components/ManualTransactionForm';
+import ProvenanceBadge, { combineProvenance } from '@/components/ProvenanceBadge';
 import TransactionRow from '@/components/TransactionRow';
+import { usePortfolio } from '@/components/PortfolioProvider';
 import { getAllTransactions } from '@/lib/aggregator';
 import type { Category, Source } from '@/lib/connectors/types';
 import { CATEGORY_LABELS, formatHKD } from '@/lib/format';
@@ -18,9 +21,18 @@ const CATEGORIES: Category[] = [
 ];
 
 export default function TransactionsPage() {
+  const { overrides, manualTransactions, removeManualTransaction, provenance } = usePortfolio();
+
+  // The provider's overrides fold in imported statements, sandbox connections
+  // and hand-entered transactions; untouched sources fall through to the mocks.
   const all = useMemo(
-    () => [...getAllTransactions()].sort((a, b) => b.date.localeCompare(a.date)),
-    [],
+    () => [...getAllTransactions(overrides)].sort((a, b) => b.date.localeCompare(a.date)),
+    [overrides],
+  );
+
+  const manualIds = useMemo(
+    () => new Set(manualTransactions.map((t) => t.id)),
+    [manualTransactions],
   );
 
   const [source, setSource] = useState<Source | 'all'>('all');
@@ -59,13 +71,18 @@ export default function TransactionsPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-          Unified Transactions
-        </h1>
+        <div className="flex flex-wrap items-center gap-2">
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+            Unified Transactions
+          </h1>
+          <ProvenanceBadge kind={combineProvenance([provenance.bank, provenance.octopus])} />
+        </div>
         <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          Bank and Octopus activity in one feed · mock data · newest first
+          Bank and Octopus activity in one feed · newest first
         </p>
       </header>
+
+      <ManualTransactionForm />
 
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -153,7 +170,15 @@ export default function TransactionsPage() {
         ) : (
           <div className="divide-y divide-slate-100 dark:divide-slate-800">
             {filtered.map((transaction) => (
-              <TransactionRow key={transaction.id} transaction={transaction} />
+              <TransactionRow
+                key={transaction.id}
+                transaction={transaction}
+                onRemove={
+                  manualIds.has(transaction.id)
+                    ? () => removeManualTransaction(transaction.id)
+                    : undefined
+                }
+              />
             ))}
           </div>
         )}

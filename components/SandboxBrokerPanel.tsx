@@ -15,7 +15,7 @@ export default function SandboxBrokerPanel() {
 
   if (sandbox) {
     const broker = getSandboxBroker(sandbox.broker);
-    const superseded = provenance !== 'sandbox';
+    const superseded = provenance.investment !== 'sandbox';
 
     return (
       <div className="mt-4 rounded-xl border border-slate-200 p-3 dark:border-slate-800">

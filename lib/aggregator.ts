@@ -23,13 +23,25 @@ export interface SourceToggle {
 }
 
 /**
- * Optional per-source data overrides. Used by the CSV import flow to swap the
- * mock portfolio for an imported one without introducing any hidden state:
- * omitting `holdings` leaves the mock adapter in charge, so every previously
- * verified figure is unchanged.
+ * Optional per-source data overrides. Used by the import / sandbox / manual
+ * flows to swap a mock source for real user data without introducing any
+ * hidden state: omitting a key leaves the mock adapter in charge, so every
+ * previously verified figure is unchanged.
  */
 export interface SnapshotOverrides {
   holdings?: Holding[];
+  /** Replacement bank transactions; omitted = the mock bank adapter. */
+  bank?: Transaction[];
+  /** Replacement Octopus transactions; omitted = the mock Octopus adapter. */
+  octopus?: Transaction[];
+}
+
+/** Sources that are fed by a transaction ledger rather than by holdings. */
+type LedgerSource = Extract<Source, 'bank' | 'octopus'>;
+
+function ledgerFor(source: LedgerSource, overrides: SnapshotOverrides): Transaction[] {
+  if (source === 'bank') return overrides.bank ?? getBankTransactions();
+  return overrides.octopus ?? getOctopusTransactions();
 }
 
 export interface Totals {
@@ -82,14 +94,17 @@ function addOneMonth(iso: string): string {
 // ------------------------------------------------------------------ core API
 
 /** Every transaction across all connectors (bank + Octopus). */
-export function getAllTransactions(): Transaction[] {
-  return [...getBankTransactions(), ...getOctopusTransactions()];
+export function getAllTransactions(overrides: SnapshotOverrides = {}): Transaction[] {
+  return [...ledgerFor('bank', overrides), ...ledgerFor('octopus', overrides)];
 }
 
 /** Transactions limited to the currently enabled sources. */
-export function getTransactionsForSources(sources: Source[]): Transaction[] {
+export function getTransactionsForSources(
+  sources: Source[],
+  overrides: SnapshotOverrides = {},
+): Transaction[] {
   const enabled = new Set(sources);
-  return getAllTransactions().filter((t) => enabled.has(t.source));
+  return getAllTransactions(overrides).filter((t) => enabled.has(t.source));
 }
 
 export function getTotals(transactions: Transaction[]): Totals {
@@ -227,15 +242,15 @@ export function buildSnapshot(
     Object.keys(toggle) as Array<keyof SourceToggle>
   ).filter((k) => toggle[k]) as Source[];
 
-  const transactions = getTransactionsForSources(enabledSources);
-  const bankTx = toggle.bank ? getBankTransactions() : [];
-  const octopusTx = toggle.octopus ? getOctopusTransactions() : [];
+  const transactions = getTransactionsForSources(enabledSources, overrides);
+  const bankTx = toggle.bank ? ledgerFor('bank', overrides) : [];
+  const octopusTx = toggle.octopus ? ledgerFor('octopus', overrides) : [];
   const holdings = toggle.investment
     ? overrides.holdings ?? getHoldings()
     : [];
 
   // Month axis is derived from the FULL dataset so labels never shift on toggle.
-  const months = getMonths(getAllTransactions());
+  const months = getMonths(getAllTransactions(overrides));
   const currentMonth = months[0] ?? '';
   const previousMonth = months[1] ?? '';
 

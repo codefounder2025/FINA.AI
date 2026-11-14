@@ -6,21 +6,30 @@ import {
   createSandboxBrokerAdapter,
   type SandboxBroker,
 } from '@/lib/connectors/sandboxBrokerAdapter';
-import type { Holding } from '@/lib/connectors/types';
+import {
+  createSandboxLedgerAdapter,
+  getSandboxApp,
+  type LedgerSourceId,
+  type SandboxApp,
+} from '@/lib/connectors/sandboxLedgerAdapter';
+import { createStatementAdapter, type StatementRow } from '@/lib/connectors/statementParser';
+import { getBankTransactions } from '@/lib/connectors/bankConnector';
+import { getOctopusTransactions } from '@/lib/connectors/octopusConnector';
+import type { Category, Holding, Source, Transaction } from '@/lib/connectors/types';
+import type { SnapshotOverrides } from '@/lib/aggregator';
 import type { Provenance } from '@/components/ProvenanceBadge';
 
 /**
  * Session-scoped portfolio state.
  *
- * Two things can replace the mock portfolio: a CSV import, or a simulated
- * broker connection. They are tracked separately so the Connections page can
- * report on each honestly, but only one owns the dashboard at a time — whichever
- * the user did most recently.
+ * Three things can replace a mock source: a CSV import or sandbox connection
+ * for the investment portfolio, and a PDF statement import or sandbox
+ * connection for each spending source. On top of that the user can add
+ * individual transactions by hand.
  *
  * Everything is in-memory: there is no database and no localStorage, so a
  * reload always returns to the mock figures. Nothing here mutates the mock
- * adapters; an alternative portfolio is passed to `buildSnapshot` as an
- * override.
+ * adapters; alternative data is passed to `buildSnapshot` as an override.
  */
 
 export interface ImportedPortfolio {
@@ -38,28 +47,72 @@ export interface SandboxConnection {
   connectedAt: string;
 }
 
+/** A replacement transaction ledger for one spending source. */
+export interface LedgerImport {
+  kind: 'sandbox' | 'statement';
+  /** App name for a sandbox connection, file name for a statement import. */
+  label: string;
+  /** Which app was simulated, for the sandbox case only. */
+  app?: SandboxApp;
+  transactions: Transaction[];
+  /** ISO timestamp of the import/connection. */
+  at: string;
+}
+
+export interface ManualTransactionInput {
+  source: LedgerSourceId;
+  merchant: string;
+  /** Signed: negative = expense, positive = income. */
+  amount: number;
+  date: string;
+  category: Category;
+}
+
 type ActiveKind = 'csv' | 'sandbox';
 
 interface PortfolioContextValue {
+  // ---- investment portfolio
   imported: ImportedPortfolio | null;
   sandbox: SandboxConnection | null;
   /** Holdings the dashboard should use; undefined means the mock adapter. */
   activeHoldings: Holding[] | undefined;
-  provenance: Provenance;
-  /** ISO timestamp backing the provenance badge, when there is one. */
-  provenanceAt: string | undefined;
   importRows: (rows: BrokerCsvRow[], fileName: string) => void;
   clearImport: () => void;
   connectSandbox: (broker: SandboxBroker) => void;
   disconnectSandbox: () => void;
+
+  // ---- spending ledgers (bank + Octopus)
+  ledgers: Record<LedgerSourceId, LedgerImport | null>;
+  connectLedger: (source: LedgerSourceId, app: SandboxApp) => void;
+  importStatement: (source: LedgerSourceId, rows: StatementRow[], fileName: string) => void;
+  clearLedger: (source: LedgerSourceId) => void;
+
+  // ---- hand-entered transactions
+  manualTransactions: Transaction[];
+  addManualTransaction: (input: ManualTransactionInput) => void;
+  removeManualTransaction: (id: string) => void;
+
+  // ---- derived
+  provenance: Record<Source, Provenance>;
+  provenanceAt: Partial<Record<Source, string>>;
+  /** Everything the aggregator needs; keys are omitted for untouched sources. */
+  overrides: SnapshotOverrides;
 }
 
 const PortfolioContext = createContext<PortfolioContextValue | null>(null);
+
+const EMPTY_LEDGERS: Record<LedgerSourceId, LedgerImport | null> = {
+  bank: null,
+  octopus: null,
+};
 
 export function PortfolioProvider({ children }: { children: React.ReactNode }) {
   const [imported, setImported] = useState<ImportedPortfolio | null>(null);
   const [sandbox, setSandbox] = useState<SandboxConnection | null>(null);
   const [active, setActive] = useState<ActiveKind | null>(null);
+  const [ledgers, setLedgers] =
+    useState<Record<LedgerSourceId, LedgerImport | null>>(EMPTY_LEDGERS);
+  const [manualTransactions, setManualTransactions] = useState<Transaction[]>([]);
 
   const importRows = useCallback((rows: BrokerCsvRow[], fileName: string) => {
     // Go through the adapter so imported data arrives in exactly the same shape
@@ -100,44 +153,159 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
     setActive((current) => (current === 'sandbox' ? (imported ? 'csv' : null) : current));
   }, [imported]);
 
+  const connectLedger = useCallback((source: LedgerSourceId, app: SandboxApp) => {
+    const adapter = createSandboxLedgerAdapter(app);
+
+    setLedgers((current) => ({
+      ...current,
+      [source]: {
+        kind: 'sandbox',
+        label: getSandboxApp(app)?.name ?? 'App',
+        app,
+        transactions: adapter.getTransactions(),
+        at: new Date().toISOString(),
+      },
+    }));
+  }, []);
+
+  const importStatement = useCallback(
+    (source: LedgerSourceId, rows: StatementRow[], fileName: string) => {
+      const adapter = createStatementAdapter(source, rows);
+
+      setLedgers((current) => ({
+        ...current,
+        [source]: {
+          kind: 'statement',
+          label: fileName,
+          transactions: adapter.getTransactions(),
+          at: new Date().toISOString(),
+        },
+      }));
+    },
+    [],
+  );
+
+  const clearLedger = useCallback((source: LedgerSourceId) => {
+    setLedgers((current) => ({ ...current, [source]: null }));
+  }, []);
+
+  const addManualTransaction = useCallback((input: ManualTransactionInput) => {
+    setManualTransactions((current) => [
+      ...current,
+      {
+        id: `manual-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`,
+        source: input.source,
+        merchant: input.merchant,
+        amount: input.amount,
+        currency: 'HKD',
+        date: input.date,
+        category: input.category,
+      },
+    ]);
+  }, []);
+
+  const removeManualTransaction = useCallback((id: string) => {
+    setManualTransactions((current) => current.filter((t) => t.id !== id));
+  }, []);
+
   const activeHoldings = useMemo(() => {
     if (active === 'csv') return imported?.holdings;
     if (active === 'sandbox') return sandbox?.holdings;
     return undefined;
   }, [active, imported, sandbox]);
 
-  const provenance: Provenance =
-    active === 'csv' && imported
-      ? 'csv'
-      : active === 'sandbox' && sandbox
-        ? 'sandbox'
-        : 'mock';
+  /**
+   * Untouched sources stay `undefined` so the mock adapter keeps owning them —
+   * that is what keeps every previously verified figure identical.
+   */
+  const overrides = useMemo<SnapshotOverrides>(() => {
+    const ledgerOverride = (id: LedgerSourceId): Transaction[] | undefined => {
+      const ledger = ledgers[id];
+      const typed = manualTransactions.filter((t) => t.source === id);
+      if (!ledger && typed.length === 0) return undefined;
 
-  const provenanceAt =
-    provenance === 'csv' ? imported?.importedAt : provenance === 'sandbox' ? sandbox?.connectedAt : undefined;
+      const base = ledger
+        ? ledger.transactions
+        : id === 'bank'
+          ? getBankTransactions()
+          : getOctopusTransactions();
+
+      return [...base, ...typed];
+    };
+
+    return {
+      holdings: activeHoldings,
+      bank: ledgerOverride('bank'),
+      octopus: ledgerOverride('octopus'),
+    };
+  }, [ledgers, manualTransactions, activeHoldings]);
+
+  const provenance = useMemo<Record<Source, Provenance>>(() => {
+    const investment: Provenance =
+      active === 'csv' && imported
+        ? 'csv'
+        : active === 'sandbox' && sandbox
+          ? 'sandbox'
+          : 'mock';
+
+    const forLedger = (id: LedgerSourceId): Provenance => {
+      const ledger = ledgers[id];
+      if (ledger) return ledger.kind === 'statement' ? 'statement' : 'sandbox';
+      return manualTransactions.some((t) => t.source === id) ? 'manual' : 'mock';
+    };
+
+    return { bank: forLedger('bank'), octopus: forLedger('octopus'), investment };
+  }, [active, imported, sandbox, ledgers, manualTransactions]);
+
+  const provenanceAt = useMemo<Partial<Record<Source, string>>>(() => {
+    const at: Partial<Record<Source, string>> = {};
+    if (provenance.investment === 'csv') at.investment = imported?.importedAt;
+    if (provenance.investment === 'sandbox') at.investment = sandbox?.connectedAt;
+    if (provenance.bank === 'statement' || provenance.bank === 'sandbox') at.bank = ledgers.bank?.at;
+    if (provenance.octopus === 'statement' || provenance.octopus === 'sandbox') {
+      at.octopus = ledgers.octopus?.at;
+    }
+    return at;
+  }, [provenance, imported, sandbox, ledgers]);
 
   const value = useMemo(
     () => ({
       imported,
       sandbox,
       activeHoldings,
-      provenance,
-      provenanceAt,
       importRows,
       clearImport,
       connectSandbox,
       disconnectSandbox,
+      ledgers,
+      connectLedger,
+      importStatement,
+      clearLedger,
+      manualTransactions,
+      addManualTransaction,
+      removeManualTransaction,
+      provenance,
+      provenanceAt,
+      overrides,
     }),
     [
       imported,
       sandbox,
       activeHoldings,
-      provenance,
-      provenanceAt,
       importRows,
       clearImport,
       connectSandbox,
       disconnectSandbox,
+      ledgers,
+      connectLedger,
+      importStatement,
+      clearLedger,
+      manualTransactions,
+      addManualTransaction,
+      removeManualTransaction,
+      provenance,
+      provenanceAt,
+      overrides,
     ],
   );
 

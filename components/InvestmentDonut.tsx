@@ -22,6 +22,8 @@ const ORDER: AssetClass[] = ['stock', 'etf', 'crypto', 'cash'];
 
 export default function InvestmentDonut({ allocation, total }: InvestmentDonutProps) {
   const { imported, sandbox, provenance, provenanceAt, clearImport } = usePortfolio();
+  const portfolioProvenance = provenance.investment;
+  const portfolioAt = provenanceAt.investment;
 
   const data = ORDER.map((assetClass) => ({
     name: ASSET_CLASS_LABELS[assetClass],
@@ -38,15 +40,12 @@ export default function InvestmentDonut({ allocation, total }: InvestmentDonutPr
               <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                 Investment allocation
               </h2>
-              <ProvenanceBadge
-                kind={provenance}
-                date={provenance === 'csv' ? provenanceAt : undefined}
-              />
+              <ProvenanceBadge kind={portfolioProvenance} date={portfolioAt} />
             </div>
             <p className="mt-0.5 truncate text-xs text-slate-500 dark:text-slate-400">
-              {provenance === 'csv' && imported
+              {portfolioProvenance === 'csv' && imported
                 ? `By asset class · imported from ${imported.fileName}`
-                : provenance === 'sandbox' && sandbox
+                : portfolioProvenance === 'sandbox' && sandbox
                   ? `By asset class · sandbox portfolio (${
                       getSandboxBroker(sandbox.broker)?.name ?? 'broker'
                     })`

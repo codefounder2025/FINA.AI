@@ -2,7 +2,13 @@ import type { Transaction } from '@/lib/connectors/types';
 import { CATEGORY_LABELS, formatDate, formatSignedHKD } from '@/lib/format';
 import SourceBadge from './SourceBadge';
 
-export default function TransactionRow({ transaction }: { transaction: Transaction }) {
+export default function TransactionRow({
+  transaction,
+  onRemove,
+}: {
+  transaction: Transaction;
+  onRemove?: () => void;
+}) {
   const isIncome = transaction.amount >= 0;
 
   return (
@@ -23,6 +29,16 @@ export default function TransactionRow({ transaction }: { transaction: Transacti
       >
         {formatSignedHKD(transaction.amount)}
       </p>
+      {onRemove && (
+        <button
+          type="button"
+          onClick={onRemove}
+          aria-label={`Remove ${transaction.merchant}`}
+          className="shrink-0 rounded-lg px-1.5 py-1 text-xs font-medium text-slate-400 transition hover:text-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:hover:text-red-400"
+        >
+          Remove
+        </button>
+      )}
     </div>
   );
 }
