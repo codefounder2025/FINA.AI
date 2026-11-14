@@ -21,14 +21,14 @@ const DEFAULT_TOGGLE: SourceToggleState = { bank: true, octopus: true, investmen
 
 export default function DashboardPage() {
   const [toggle, setToggle] = useState<SourceToggleState>(DEFAULT_TOGGLE);
-  const { imported } = usePortfolio();
+  const { activeHoldings, provenance, provenanceAt } = usePortfolio();
 
   // Every derived number comes from here — nothing is hardcoded downstream.
-  // An imported CSV is passed as an override, so with no import the mock
-  // adapter is used and every figure is unchanged.
+  // An imported CSV or sandbox portfolio is passed as an override, so with
+  // neither active the mock adapter is used and every figure is unchanged.
   const snapshot = useMemo(
-    () => buildSnapshot(toggle, { holdings: imported?.holdings }),
-    [toggle, imported],
+    () => buildSnapshot(toggle, { holdings: activeHoldings }),
+    [toggle, activeHoldings],
   );
 
   const bills = useMemo(
@@ -81,7 +81,12 @@ export default function DashboardPage() {
           label="Investment Value"
           value={formatHKD(snapshot.investmentValue)}
           accent="green"
-          badge={<ProvenanceBadge kind={imported ? 'csv' : 'mock'} date={imported?.importedAt} />}
+          badge={
+            <ProvenanceBadge
+              kind={provenance}
+              date={provenance === 'csv' ? provenanceAt : undefined}
+            />
+          }
           hint={
             snapshot.enabledSources.includes('investment')
               ? `${formatPercent(snapshot.investmentShare)} of net position · ${

@@ -5,6 +5,7 @@ import type { AssetClass } from '@/lib/connectors/types';
 import ImportCsvButton from '@/components/ImportCsvButton';
 import ProvenanceBadge from '@/components/ProvenanceBadge';
 import { usePortfolio } from '@/components/PortfolioProvider';
+import { getSandboxBroker } from '@/lib/connectors/sandboxBrokerAdapter';
 import {
   ASSET_CLASS_COLORS,
   ASSET_CLASS_LABELS,
@@ -20,7 +21,7 @@ interface InvestmentDonutProps {
 const ORDER: AssetClass[] = ['stock', 'etf', 'crypto', 'cash'];
 
 export default function InvestmentDonut({ allocation, total }: InvestmentDonutProps) {
-  const { imported, clearImport } = usePortfolio();
+  const { imported, sandbox, provenance, provenanceAt, clearImport } = usePortfolio();
 
   const data = ORDER.map((assetClass) => ({
     name: ASSET_CLASS_LABELS[assetClass],
@@ -38,14 +39,18 @@ export default function InvestmentDonut({ allocation, total }: InvestmentDonutPr
                 Investment allocation
               </h2>
               <ProvenanceBadge
-                kind={imported ? 'csv' : 'mock'}
-                date={imported?.importedAt}
+                kind={provenance}
+                date={provenance === 'csv' ? provenanceAt : undefined}
               />
             </div>
             <p className="mt-0.5 truncate text-xs text-slate-500 dark:text-slate-400">
-              {imported
+              {provenance === 'csv' && imported
                 ? `By asset class · imported from ${imported.fileName}`
-                : 'By asset class (mock portfolio)'}
+                : provenance === 'sandbox' && sandbox
+                  ? `By asset class · sandbox portfolio (${
+                      getSandboxBroker(sandbox.broker)?.name ?? 'broker'
+                    })`
+                  : 'By asset class (mock portfolio)'}
             </p>
           </div>
         </div>

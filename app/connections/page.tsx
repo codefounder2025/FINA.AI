@@ -3,11 +3,13 @@
 import { useMemo } from 'react';
 import ImportCsvButton from '@/components/ImportCsvButton';
 import ProvenanceBadge from '@/components/ProvenanceBadge';
+import SandboxBrokerPanel from '@/components/SandboxBrokerPanel';
 import { usePortfolio } from '@/components/PortfolioProvider';
 import { bankConnectorMeta } from '@/lib/connectors/bankConnector';
 import { buildCsvConnectorMeta } from '@/lib/connectors/csvBrokerAdapter';
 import { octopusConnectorMeta } from '@/lib/connectors/octopusConnector';
 import { investmentConnectorMeta } from '@/lib/connectors/investmentConnector';
+import { buildSandboxConnectorMeta } from '@/lib/connectors/sandboxBrokerAdapter';
 import { SOURCE_COLORS } from '@/lib/format';
 
 function formatSync(iso: string): string {
@@ -18,21 +20,28 @@ function formatSync(iso: string): string {
   });
 }
 
-export default function ConnectionsPage() {
-  const { imported } = usePortfolio();
+const STATUS_STYLES: Record<string, string> = {
+  CSV: 'bg-violet-50 text-violet-800 ring-violet-200 dark:bg-violet-950 dark:text-violet-300 dark:ring-violet-800',
+  Sandbox:
+    'bg-amber-50 text-amber-800 ring-amber-200 dark:bg-amber-950 dark:text-amber-300 dark:ring-amber-800',
+  mock: 'bg-slate-100 text-slate-700 ring-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700',
+};
 
-  // The investment connector is the only one that can change at runtime: when a
-  // CSV has been imported it reports the import instead of the mock adapter.
-  const connectors = useMemo(
-    () => [
-      bankConnectorMeta,
-      octopusConnectorMeta,
-      imported
+export default function ConnectionsPage() {
+  const { imported, sandbox, provenance } = usePortfolio();
+
+  // Only the investment connector can change at runtime. Its meta follows
+  // whichever source currently owns the dashboard.
+  const connectors = useMemo(() => {
+    const investment =
+      provenance === 'csv' && imported
         ? buildCsvConnectorMeta(imported.fileName, imported.importedAt)
-        : investmentConnectorMeta,
-    ],
-    [imported],
-  );
+        : provenance === 'sandbox' && sandbox
+          ? buildSandboxConnectorMeta(sandbox.broker, sandbox.connectedAt)
+          : investmentConnectorMeta;
+
+    return [bankConnectorMeta, octopusConnectorMeta, investment];
+  }, [provenance, imported, sandbox]);
 
   return (
     <div className="space-y-6">
@@ -41,14 +50,16 @@ export default function ConnectionsPage() {
         <p className="mt-1 max-w-3xl text-sm leading-relaxed text-slate-500 dark:text-slate-400">
           Every source below is backed by a mock adapter returning realistic JSON — there are no
           live bank, Octopus or brokerage credentials in this demo. The portfolio can additionally
-          be replaced with a broker CSV you import yourself. Each card lists the status, the last
-          sync time, and the real-world integration path this connector is designed for.
+          be replaced with a broker CSV you import, or with a simulated sandbox connection. Each
+          card lists the status, the last sync time, and the real-world integration path this
+          connector is designed for.
         </p>
       </header>
 
       <section className="grid gap-4 lg:grid-cols-3">
         {connectors.map((connector) => {
           const isInvestment = connector.id === 'investment';
+          const statusStyle = STATUS_STYLES[connector.status] ?? STATUS_STYLES.mock;
 
           return (
             <article
@@ -65,13 +76,11 @@ export default function ConnectionsPage() {
                   <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">{connector.name}</h2>
                 </div>
                 <span
-                  className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${
-                    connector.status === 'CSV'
-                      ? 'bg-violet-50 text-violet-800 ring-violet-200 dark:bg-violet-950 dark:text-violet-300 dark:ring-violet-800'
-                      : 'bg-amber-50 text-amber-800 ring-amber-200 dark:bg-amber-950 dark:text-amber-300 dark:ring-amber-800'
-                  }`}
+                  className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${statusStyle}`}
                 >
-                  {connector.status === 'CSV' ? `CSV · ${formatSync(connector.lastSyncedAt)}` : connector.status}
+                  {connector.status === 'CSV'
+                    ? `CSV · ${formatSync(connector.lastSyncedAt)}`
+                    : connector.status}
                 </span>
               </div>
 
@@ -92,17 +101,18 @@ export default function ConnectionsPage() {
                   <dt className="text-slate-500 dark:text-slate-400">Provenance</dt>
                   <dd>
                     <ProvenanceBadge
-                      kind={isInvestment && imported ? 'csv' : 'mock'}
-                      date={isInvestment ? imported?.importedAt : undefined}
+                      kind={isInvestment ? provenance : 'mock'}
+                      date={isInvestment ? (provenance === 'csv' ? imported?.importedAt : undefined) : undefined}
                     />
                   </dd>
                 </div>
               </dl>
 
               {isInvestment && (
-                <div className="mt-4">
-                  <ImportCsvButton className="w-full justify-center" />
-                </div>
+                <>
+                  <ImportCsvButton className="mt-4 w-full justify-center" />
+                  <SandboxBrokerPanel />
+                </>
               )}
 
               <p className="mt-4 border-t border-slate-100 pt-4 text-xs leading-relaxed text-slate-500 dark:border-slate-800 dark:text-slate-400">
@@ -122,7 +132,7 @@ export default function ConnectionsPage() {
           API. For a 48-hour hackathon none of these are reachable, so FINA.AI ships a connector
           architecture where each source is a drop-in adapter. Swapping a mock adapter for a real
           one is a single-file change — the aggregator, insights and UI never need to know. The CSV
-          import is the one real path available today, and it is labelled as such.
+          import is real today; the broker connection is simulated and labelled as such.
         </p>
       </section>
     </div>
